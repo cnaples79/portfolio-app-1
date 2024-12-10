@@ -46,10 +46,10 @@ const HomePage = () => (
 
 const Portfolio = () => {
   const projects = [
-    { name: 'Project 1', description: 'A React-based web application', link: 'https://github.com/chasenaplesdev/project1' },
-    { name: 'Project 2', description: 'Python data analysis tool', link: 'https://github.com/chasenaplesdev/project2' },
-    { name: 'Project 3', description: 'Mobile app built with .NET MAUI', link: 'https://github.com/chasenaplesdev/project3' },
-    { name: 'Project 4', description: 'AI-powered chatbot', link: 'https://github.com/chasenaplesdev/project4' },
+    { name: 'Project 1', description: 'A React-based web application for managing vehicles built with PostgreSQL', link: 'https://github.com/cnaples79/fleet-management-app' },
+    { name: 'Project 2', description: 'A Web Chatbot App For Talking With LLMs', link: 'https://github.com/cnaples79/mistral-chat' },
+    { name: 'Project 3', description: 'A Social Media Mobile app built with .NET MAUI', link: 'https://github.com/cnaples79/ConnectHub' },
+    { name: 'Project 4', description: 'A Budgeting App Built With Next.JS', link: 'https://github.com/cnaples79/BudgetCraft3' },
   ];
 
   return (
