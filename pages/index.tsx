@@ -163,10 +163,26 @@ const Contact = () => {
 
 const Blog = () => {
   const blogPosts = [
-    { title: 'The Future of AI in Web Development', date: '2024-03-15' },
-    { title: 'Building Cross-Platform Apps with .NET MAUI', date: '2024-03-01' },
-    { title: 'Optimizing React Performance', date: '2024-02-15' },
-    { title: 'Python vs JavaScript: A Data Analysis Showdown', date: '2024-02-01' },
+    {
+      title: 'The Future of AI in Web Development: Trends and Predictions for 2025',
+      date: '2024-09-16',
+      link: 'https://dmwebsoft.com/the-future-of-ai-in-web-development-trends-and-predictions-for-2025',
+    },
+    {
+      title: 'Enterprise Application Patterns Using .NET MAUI',
+      date: '2023-11-20',
+      link: 'https://learn.microsoft.com/en-us/dotnet/architecture/maui/',
+    },
+    {
+      title: 'Optimizing Performance in a React App',
+      date: '2023-03-15',
+      link: 'https://blog.logrocket.com/optimizing-performance-react-app/',
+    },
+    {
+      title: 'Python vs. JavaScript: Comparing the Best Languages for Data Science and AI Development',
+      date: '2024-10-10',
+      link: 'https://simomhasan.com/python-vs-javascript-comparing-the-best-languages-for-data-science-and-ai-development/',
+    },
   ];
 
   return (
@@ -175,7 +191,12 @@ const Blog = () => {
         <div key={post.title} className="bg-gray-800 p-6 rounded-lg">
           <h3 className="text-xl font-bold mb-2 text-white">{post.title}</h3>
           <p className="text-gray-400">{post.date}</p>
-          <a href="#" className="text-blue-400 hover:text-blue-300 mt-2 inline-block">
+          <a
+            href={post.link}
+            className="text-blue-400 hover:text-blue-300 mt-2 inline-block"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Read more
           </a>
         </div>
