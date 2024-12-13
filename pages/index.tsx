@@ -116,7 +116,9 @@ const Contact = () => {
   return (
     <div className="max-w-2xl mx-auto text-white">
       <h2 className="text-3xl font-bold mb-4">Contact Me</h2>
-      <p className="mb-4">Email: chase.naples@example.com</p>
+      <p className="mb-4">Email: cnaples79@gmail.com</p>
+      <p className="mb-4">LinkedIn: linkedin.com/in/chase-naples.com</p>
+      <p className="mb-4">GitHub: github.com/cnaples79</p>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="name" className="block mb-1">Name</label>
