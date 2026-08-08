@@ -6,7 +6,7 @@
         "http://127.0.0.1:3000/work/cleanshare-pro",
         "http://127.0.0.1:3000/writing"
       ],
-      "numberOfRuns": 1
+      "numberOfRuns": 3
     },
     "assert": {
       "assertions": {
