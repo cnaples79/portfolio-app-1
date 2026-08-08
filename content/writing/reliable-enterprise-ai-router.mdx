@@ -1,0 +1,98 @@
+Enterprise AI assistants rarely fail because they lack a clever prompt. They fail because the system chooses the wrong path, uses the wrong evidence, invokes the wrong action, or keeps going when it should ask for help.
+
+The router is the control plane for those decisions. Its job is not simply to pick an agent. It must decide what kind of problem the user has presented and which execution mode can handle it safely.
+
+## Start with execution modes, not agents
+
+A useful router begins with a small set of explicit paths:
+
+- **Deterministic workflow** for known actions with stable rules and required inputs.
+- **Retrieval and generation** for knowledge questions that need governed evidence.
+- **Clarification** when the request is incomplete, ambiguous, or below a confidence threshold.
+- **Human escalation** when policy, repeated failure, sensitivity, or user preference requires it.
+
+Agents can exist inside these paths, but “agent” is not a sufficient policy. A tool-using model that can act, search, and answer still needs boundaries around when each behavior is allowed.
+
+> Treat routing as a product and risk decision expressed in code—not as a single model classification.
+
+## Give deterministic paths first refusal
+
+When a user has a recognized action and the workflow has all required inputs, a deterministic path is usually the best starting point. It is testable, observable, and easier to make idempotent.
+
+This does not mean rules should dominate every conversation. It means the system should preserve reliable capabilities that already exist. A model can help interpret language and collect missing context without replacing a workflow that has well-understood business behavior.
+
+The decision can be represented as an ordered policy:
+
+1. Check safety, access, and session preconditions.
+2. Detect a known action and validate required entities.
+3. Route eligible knowledge questions to retrieval.
+4. Ask one focused clarification when evidence is insufficient.
+5. Escalate after repeated failure, explicit request, or a policy trigger.
+
+Ordering matters. If retrieval gets the first opportunity to answer everything, it may produce plausible instructions for an action the system should have executed—or refuse an action it already knows how to complete.
+
+## Make confidence multidimensional
+
+A single confidence score hides too much. At minimum, separate:
+
+- **Intent confidence:** How likely is the interpreted user goal?
+- **Entity completeness:** Are the inputs needed for the selected path present and valid?
+- **Retrieval confidence:** Do the retrieved sources directly support the proposed answer?
+- **Policy eligibility:** Is this path allowed for this user, data, and context?
+- **Execution confidence:** Can the downstream service accept the request without unsafe guessing?
+
+These signals do not have to come from the same model. They can be rules, classifiers, retrieval scores, validation results, and platform state. The router combines them into a decision with a reason code.
+
+## Preserve the reason for every route
+
+Production debugging improves dramatically when each decision emits structured context:
+
+- selected path;
+- policy and version;
+- relevant confidence signals;
+- missing or rejected entities;
+- evidence identifiers, not full sensitive content;
+- tool name and outcome;
+- fallback or escalation reason;
+- correlation ID across the request.
+
+The goal is not to log private conversation indiscriminately. The goal is to make the decision explainable without reconstructing it from scattered application logs.
+
+Reason codes also make evaluation practical. Teams can compare outcomes for `LOW_RETRIEVAL_SUPPORT`, `MISSING_REQUIRED_ENTITY`, or `REPEATED_TOOL_FAILURE` instead of reviewing one undifferentiated pool of bad conversations.
+
+## Design fallbacks as first-class paths
+
+Fallback should not mean “ask the same model again.” A useful fallback changes the conditions of the problem.
+
+For example:
+
+- narrow the retrieval scope;
+- ask for one missing entity;
+- switch from an action to a read-only explanation;
+- offer a known navigation path;
+- transfer the user with a concise summary of what already happened.
+
+Every route needs a bounded retry budget. Tool loops and repeated paraphrases create latency, cost, and user frustration while often reducing diagnostic clarity.
+
+## Evaluate the policy, not only the answer
+
+Answer-quality evaluation is necessary but incomplete. A router evaluation set should include:
+
+- requests that look similar but require different execution modes;
+- incomplete action requests;
+- out-of-domain questions;
+- conflicting or stale evidence;
+- unauthorized actions;
+- tool timeouts and malformed responses;
+- repeated user corrections;
+- direct requests for a human.
+
+For each case, score whether the system chose the correct path, collected only necessary context, used an allowed tool, grounded any answer, and stopped at the right time.
+
+## Roll out routing changes like application changes
+
+Router policies deserve versioning, staged deployment, and rollback. A seemingly small threshold change can shift large volumes between retrieval, workflows, and live support.
+
+Use shadow evaluation before changing behavior. Then expose the new policy to a controlled cohort, compare route distribution and outcome metrics, and watch both success and harm indicators. A lower escalation rate is not a win if unresolved conversations rise.
+
+The strongest enterprise router is often intentionally boring. It has a small number of named paths, explicit precedence, observable reasons, bounded retries, and a dependable way to stop. That structure gives models room to help without asking them to own decisions the surrounding system can make more reliably.
