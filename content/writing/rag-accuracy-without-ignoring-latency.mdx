@@ -1,0 +1,103 @@
+RAG conversations often begin with an accuracy complaint and end with a larger model. Sometimes that helps. Just as often, it makes the response slower while leaving the retrieval failure untouched.
+
+Accuracy and latency are properties of the whole pipeline: query understanding, retrieval, filtering, ranking, context construction, generation, validation, and delivery. Improving one stage without measuring the others can move the problem instead of solving it.
+
+## Separate retrieval failure from generation failure
+
+Before tuning, classify bad answers into a small failure taxonomy:
+
+- the correct source was not indexed;
+- the query did not retrieve the correct source;
+- the correct source ranked too low;
+- the context omitted the decisive passage;
+- the model ignored or misread good evidence;
+- the evidence was conflicting, stale, or insufficient;
+- the system answered when it should have abstained.
+
+This classification determines the intervention. A larger model may help with evidence interpretation. It cannot recover a document that never reached the context window.
+
+## Build a representative evaluation set
+
+Synthetic questions are useful for coverage, but production evaluation needs real language: abbreviations, incomplete questions, misspellings, organizational terms, follow-ups, and requests containing more than one goal.
+
+Each evaluation case should define:
+
+- expected source or acceptable source set;
+- required facts;
+- forbidden or unsupported claims;
+- whether clarification is acceptable;
+- whether abstention is preferred;
+- latency budget for the user journey.
+
+Keep difficult cases. A dataset filled with exact document headings will reward superficial retrieval improvements that do not transfer to real conversations.
+
+## Measure retrieval before generation
+
+Track retrieval metrics independently from final-answer metrics. Useful measures include recall at a chosen depth, rank of the first relevant passage, percentage of queries with no relevant evidence, and the amount of duplicate context.
+
+Then measure grounded answer quality: required fact coverage, citation or evidence correctness, unsupported-claim rate, and appropriate abstention.
+
+Finally, record latency by stage rather than only end to end. Without stage timing, a five-second regression could come from query rewriting, vector search, reranking, a model call, or an integration timeout.
+
+> The goal is not the fastest possible response. It is the fastest response that meets the evidence and safety requirement for that request.
+
+## Improve the cheapest stages first
+
+Several high-value changes are often cheaper than changing the generation model:
+
+1. Remove duplicate, obsolete, and conflicting content from the corpus.
+2. Improve document boundaries and preserve headings and metadata during chunking.
+3. Apply metadata filters only when they are reliable and do not destroy recall.
+4. Normalize common acronyms, aliases, and domain terminology.
+5. Tune the initial retrieval depth and rerank a bounded candidate set.
+6. Remove near-duplicate passages before context assembly.
+
+Clean evidence helps every model and reduces wasted tokens. It also makes failures easier to explain to content owners.
+
+## Spend latency where uncertainty is high
+
+Not every query needs the same pipeline. A useful system can choose among retrieval profiles:
+
+- **Fast path:** high-confidence query, narrow domain, strong top result, compact model.
+- **Deep path:** ambiguous query, competing sources, query expansion, reranking, stronger model.
+- **Clarification path:** missing context that retrieval cannot infer safely.
+- **Abstention path:** insufficient or conflicting evidence.
+
+This is a routing decision based on evidence quality, not a blanket preference for speed. The deep path earns its latency by addressing a measurable uncertainty.
+
+## Control context instead of filling the window
+
+Larger context windows do not eliminate context engineering. Sending more passages increases token processing, introduces distractions, and can bury the decisive sentence.
+
+Construct context deliberately:
+
+- include the smallest passages that preserve meaning;
+- retain source title, section, and update metadata;
+- group related passages;
+- order evidence by relevance and authority;
+- identify contradictions rather than blending them;
+- reserve space for the response and any required output structure.
+
+Context should be a compact evidence packet, not a dump of search results.
+
+## Use caches without hiding staleness
+
+Caching can dramatically reduce latency for embeddings, query normalization, retrieval results, or completed answers. The invalidation policy is part of correctness.
+
+Tie caches to corpus or document versions where possible. Use short lifetimes for volatile policy content. Avoid completed-answer caching when the response depends on user authorization, current account state, or rapidly changing operational data.
+
+Measure hit rate and stale-answer incidents together. A cache that is fast but hard to invalidate is a reliability liability.
+
+## Compare models on the actual task
+
+Model comparison should use the same retrieved evidence, prompt contract, output validation, and evaluation cases. Record first-token time, total generation time, grounded quality, abstention behavior, and cost.
+
+A stronger model may improve difficult evidence synthesis while a smaller model handles straightforward questions. That can support a tiered strategy—but only if the routing signal is reliable enough to avoid sending the hardest cases down the cheapest path.
+
+## Optimize for user-perceived completion
+
+Streaming improves perceived responsiveness but does not excuse a slow or unsupported answer. For action-oriented experiences, users may care more about confirmation of progress and a correct final state than immediate prose.
+
+Use honest progress indicators when downstream work continues. Do not fabricate certainty before retrieval or tools finish. If the system can present a concise grounded answer first and optional detail second, it may improve both perceived speed and comprehension.
+
+RAG optimization is a constrained engineering problem. Improve evidence quality, measure every stage, route based on uncertainty, and spend latency only where it buys a better decision. The result is usually more trustworthy than simply attaching the largest available model to an unchanged pipeline.
